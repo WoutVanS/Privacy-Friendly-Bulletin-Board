@@ -14,19 +14,19 @@ public class Main {
     public static void main(String[] args) throws Exception {
           startServer();
 
-          Client alice = makeClient("alice");
-          Client bob = makeClient("bob");
+          Client alice = new Client("alice" , IP, PORT);
+          Client bob = new Client("bob", IP, PORT);
 
           bump(alice, bob);
 
-          alice.send("hey hoe gaat het");
+          alice.send("bob","hey hoe gaat het");
           System.out.println(bob.receive("alice"));
 
 
-          alice.send("lang geleden dat we elkaar hebben gezien");
+          alice.send("bob","lang geleden dat we elkaar hebben gezien");
           System.out.println(bob.receive("alice"));
 
-        bob.send("ja inderdaad");
+        bob.send("alice","ja inderdaad");
         System.out.println(alice.receive("bob"));
     }
 
@@ -37,25 +37,12 @@ public class Main {
         }catch (Exception e){e.printStackTrace();}
     }
 
-    public static Client makeClient(String name) throws Exception {
-        Random random = new Random();
 
-        SecretKey secretKey = generateKey(128);
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-        int index = random.nextInt();
-        int tag = random.nextInt();
 
-        return new Client(name, secretKey, sha256, index, tag, IP, PORT);
-    }
-
-    public static void bump(Client a, Client b){
+    public static void bump(Client a, Client b) throws Exception {
         a.bump(b);
         b.bump(a);
     }
 
-    public static SecretKey generateKey(int keySize) throws Exception {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(keySize, new SecureRandom());
-        return keyGenerator.generateKey();
-    }
+
     }

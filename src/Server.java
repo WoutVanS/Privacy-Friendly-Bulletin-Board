@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server extends UnicastRemoteObject implements BulletinBoard{
-    private ConcurrentHashMap <Integer, Map<Integer, byte[]>> bulletinBoard;
+    private final ConcurrentHashMap <Integer, Map<Integer, byte[]>> bulletinBoard;
 
     public Server() throws RemoteException {
         bulletinBoard = new ConcurrentHashMap<>();
