@@ -1,5 +1,6 @@
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.swing.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.security.MessageDigest;
@@ -11,23 +12,26 @@ import java.util.Random;
 public class Main {
     public static String IP = "localhost";
     public static int PORT = 13000;
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
           startServer();
 
           Client alice = new Client("alice" , IP, PORT);
           Client bob = new Client("bob", IP, PORT);
+          Client thomas = new Client("thomas" , IP, PORT);
+          Client jeff = new Client("jeff", IP, PORT);
 
           bump(alice, bob);
+          bump(alice, thomas);
+          bump(alice, jeff);
+          bump(bob, thomas);
+          bump(thomas, jeff);
 
-          alice.send("bob","hey hoe gaat het");
-          System.out.println(bob.receive("alice"));
 
+        SwingUtilities.invokeLater(() -> new ClientGUI(alice));
+        SwingUtilities.invokeLater(() -> new ClientGUI(bob));
+        SwingUtilities.invokeLater(() -> new ClientGUI(thomas));
+        SwingUtilities.invokeLater(() -> new ClientGUI(jeff));
 
-          alice.send("bob","lang geleden dat we elkaar hebben gezien");
-          System.out.println(bob.receive("alice"));
-
-        bob.send("alice","ja inderdaad");
-        System.out.println(alice.receive("bob"));
     }
 
     public static void startServer(){
@@ -39,7 +43,7 @@ public class Main {
 
 
 
-    public static void bump(Client a, Client b) throws Exception {
+    public static void bump(Client a, Client b) {
         a.bump(b);
         b.bump(a);
     }

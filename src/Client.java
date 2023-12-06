@@ -39,22 +39,27 @@ public class Client {
         }
     }
 
-    public void bump(Client friend) throws Exception {
+    public void bump(Client friend){
         User user =  friend.getUser(this.name);
         friendsInformation.put(friend.name, user);
     }
 
-    public User getUser(String name) throws Exception {
+    public User getUser(String name){
         User user = makeUser();
         ownInformation.put(name, user);
         return user.cloneUser();
     }
 
+    protected Set<String> getFriends(){
+        return friendsInformation.keySet();
+    }
 
-    public void send(String friendName, String message) throws Exception {sendMessage(friendName, message);}
-    public String receive(String friendName) throws Exception {return receiveMessage(friendName);}
+    protected String getName(){return this.name;}
 
-    protected void sendMessage(String friendName, String messsage) throws Exception {
+    public void send(String friendName, String message) {sendMessage(friendName, message);}
+    public String receive(String friendName)  {return receiveMessage(friendName);}
+
+    protected void sendMessage(String friendName, String messsage){
         User client = ownInformation.get(friendName);
 
         if(client != null) {
@@ -66,7 +71,12 @@ public class Client {
             messsage += ";:;" + newIndex + ";:;" + newTag;
 
             byte[] encryptedMessage = encrypt(messsage, client.secretKey);
-            server.add(client.index, encryptedMessage, client.hashedTag());
+
+            try {
+                server.add(client.index, encryptedMessage, client.hashedTag());
+            }catch (Exception e){
+                System.err.println("Error while sending message.");
+            }
 
             client.index = newIndex;
             client.tag = newTag;
@@ -75,47 +85,70 @@ public class Client {
         }else System.err.println("friend wasn't found");
     }
 
-    protected String receiveMessage(String friendName) throws Exception {
-        String message = "";
+    protected String receiveMessage(String friendName){
+        String message = null;
         User friend = friendsInformation.get(friendName);
 
         if(friend != null){
 
-           byte[] encryptedMessage = server.get(friend.index, friend.hashedTag());
-           String decryptedMessage = decrypt(encryptedMessage, friend.secretKey);
+           byte[] encryptedMessage = null;
+           try{
+               encryptedMessage = server.get(friend.index, friend.hashedTag());
+           }catch (Exception e){
+               System.err.println("Error while receiving message.");
+           }
 
-           String[] splittedMessage = decryptedMessage.split(";:;");
-           message = splittedMessage[0];
-           friend.index = Integer.parseInt(splittedMessage[1]);
-           friend.tag = Integer.parseInt(splittedMessage[2]);
+           if(encryptedMessage != null) {
+               String decryptedMessage = decrypt(encryptedMessage, friend.secretKey);
 
-           friend.hashSecretKey();
+               String[] splittedMessage = decryptedMessage.split(";:;");
+               message = splittedMessage[0];
+               friend.index = Integer.parseInt(splittedMessage[1]);
+               friend.tag = Integer.parseInt(splittedMessage[2]);
 
+               friend.hashSecretKey();
+           }
         }else System.err.println("friend wasn't found");
 
         return message;
     }
 
-    private byte[] encrypt(String dataToEncrypt, SecretKey key) throws Exception {
-        Cipher aesCipher = Cipher.getInstance("AES");
-        aesCipher.init(Cipher.ENCRYPT_MODE, key);
-        return aesCipher.doFinal(dataToEncrypt.getBytes());
+    private byte[] encrypt(String dataToEncrypt, SecretKey key) {
+        try {
+            Cipher aesCipher = Cipher.getInstance(key.getAlgorithm());
+            aesCipher.init(Cipher.ENCRYPT_MODE, key);
+            return aesCipher.doFinal(dataToEncrypt.getBytes());
+        }catch (Exception e){
+           System.err.println("Error during encrypting.");
+        }
+        return null;
     }
 
-    private String decrypt(byte[] dataToDecrypt, SecretKey key) throws Exception {
-        Cipher aesCipher = Cipher.getInstance("AES");
-        aesCipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decryptedData = aesCipher.doFinal(dataToDecrypt);
-        return new String(decryptedData);
+    private String decrypt(byte[] dataToDecrypt, SecretKey key){
+        try {
+            Cipher aesCipher = Cipher.getInstance(key.getAlgorithm());
+            aesCipher.init(Cipher.DECRYPT_MODE, key);
+            byte[] decryptedData = aesCipher.doFinal(dataToDecrypt);
+            return new String(decryptedData);
+        }catch (Exception e){
+            System.err.println("Error during decrypting.");
+        }
+        return null;
     }
 
-    private SecretKey generateKey(int keySize) throws Exception {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(keySize, new SecureRandom());
-        return keyGenerator.generateKey();
+    private SecretKey generateKey(int keySize){
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(keySize, new SecureRandom());
+            return keyGenerator.generateKey();
+        }catch (Exception e){
+            System.err.println("Error during generation of key");
+        }
+        return null;
     }
 
-    private User makeUser() throws Exception {
+    private User makeUser(){
+        try{
         Random random = new Random();
 
         SecretKey secretKey = generateKey(128);
@@ -124,6 +157,10 @@ public class Client {
         int tag = random.nextInt();
 
         return new User(secretKey, sha256, index, tag);
+        } catch (Exception e){
+            System.err.println("Error while making new User");
+        }
+        return null;
     }
 
 }

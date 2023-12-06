@@ -25,6 +25,8 @@ public class Server extends UnicastRemoteObject implements BulletinBoard{
 
     @Override
     public byte[] get(int index, int tag) throws RemoteException {
-        return bulletinBoard.get(index).remove(tag);
+        if(bulletinBoard.containsKey(index) && bulletinBoard.get(index).containsKey(tag))
+            return bulletinBoard.get(index).remove(tag);
+        return null;
     }
 }
