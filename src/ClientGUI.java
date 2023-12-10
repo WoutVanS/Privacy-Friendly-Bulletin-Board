@@ -75,18 +75,9 @@ public class ClientGUI extends JFrame {
         add(chatPanel, BorderLayout.CENTER);
 
         // Add action listeners for the send button
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sendMessage();
-            }
-        });
+        sendButton.addActionListener(e -> sendMessage());
 
-        messageTextField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                sendMessage();
-            }
-        });
+        messageTextField.addActionListener(e -> sendMessage());
 
         // Add a listener for selecting a friend from the list
         friendsList.addListSelectionListener(e -> {

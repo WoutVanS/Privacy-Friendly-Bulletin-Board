@@ -47,17 +47,14 @@ public class Client {
     public User getUser(String name){
         User user = makeUser();
         ownInformation.put(name, user);
+        assert user != null;
         return user.cloneUser();
     }
 
     protected Set<String> getFriends(){
         return friendsInformation.keySet();
     }
-
     protected String getName(){return this.name;}
-
-    public void send(String friendName, String message) {sendMessage(friendName, message);}
-    public String receive(String friendName)  {return receiveMessage(friendName);}
 
     protected void sendMessage(String friendName, String messsage){
         User client = ownInformation.get(friendName);
@@ -101,6 +98,7 @@ public class Client {
            if(encryptedMessage != null) {
                String decryptedMessage = decrypt(encryptedMessage, friend.secretKey);
 
+               assert decryptedMessage != null;
                String[] splittedMessage = decryptedMessage.split(";:;");
                message = splittedMessage[0];
                friend.index = Integer.parseInt(splittedMessage[1]);

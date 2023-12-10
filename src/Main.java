@@ -1,14 +1,10 @@
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+
 import javax.swing.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.Random;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+
+
 public class Main {
     public static String IP = "localhost";
     public static int PORT = 13000;
